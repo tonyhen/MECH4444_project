@@ -3,39 +3,41 @@
 
 // Declare external global variables (since they are defined in another file)
 extern volatile uint8_t front, back;
-extern volatile bool turnl, turnr, spinl, spinr;
+extern volatile bool turnl, turnr, spinl, spinr, spinl, spinr;
 
 // Function prototypes
-float yaw_correction(float error, float reference);
+float yaw_correction(float reference, float yaw_angle);
 void turn_left(bool *turnl, bool *turnr);
 void turn_right(bool *turnl, bool *turnr);
 void stop();  // Declare stop() before defining it
 
 // Function to adjust yaw error
-float yaw_correction(float error, float desired_heading) {
-    error = error - desired_heading;  // Adjust error based on reference
-    if (error > 180) {
+float yaw_correction(float desired_heading, float yaw_angle) {
+    int error = desired_heading - yaw_angle;  // Adjust error based on reference
+    if (error > 180) 
+    {
         error -= 360;
     } 
-    else if (error < -180) {  
+    else if (error < -180) 
+    {  
         error += 360;
     }
 
     return error;  // Return corrected yaw error
 }
 
-// Function to turn left using pointers
-void turn_left()
-{
-    turnr = 1;
-    turnl = 0;
-}
 
-// Function to turn right using pointers
-void turn_right()
+void turn_left()
 {
     turnr = 0;
     turnl = 1;
+}
+
+
+void turn_right()
+
+    turnr = 1;
+    turnl = 0;
 }
 
 // Function to stop movement

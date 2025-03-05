@@ -204,7 +204,7 @@ void Balance::pwma(float speedoutput,float rotationoutput,float angle,float roll
   
   // Comment out the remaining code below to prevent motors from turning
   // motor rotation for left motor
-  /*
+  
   if (pwm1 >= 0) // positive pwm1 means move left motor backward
   {
     digitalWrite(Pin1, 1);
@@ -231,5 +231,5 @@ void Balance::pwma(float speedoutput,float rotationoutput,float angle,float roll
     digitalWrite(Pin4, 1);       // motor driver rotates right motor forward
     analogWrite(PinPWMB, -pwm2); // motor voltage command (note -pwm2 adjust so the argument is always positive)
   }
-  */
+  
 }

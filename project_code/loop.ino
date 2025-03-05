@@ -14,7 +14,7 @@ void loop()
   
   currentMillis = millis(); // time since Arduino turned on (ms)
   currentMillis = currentMillis-startTime; // want time since setup() has finished
-  float error;
+  float error = 10;
   float ROT; 
   float desired_heading;
 
@@ -44,15 +44,16 @@ void loop()
           }
 
         startMillis = millis();
-
-        while(millis() > startMillis + 5000)
+        flag_buzzer = true;
+        while(millis() < startMillis + 5000)
           {
             
           }
+        flag_buzzer = true;
         desired_heading = yaw_angle + 180;
         while(error != 0)
           {
-            error = yaw_correction(error, desired_heading);
+            error = yaw_correction(desired_heading, yaw_angle);
             if(error>0)
             {
               turn_right();
@@ -63,16 +64,18 @@ void loop()
             }
           }
         stop();
+        flag_buzzer = true;
         startMillis = millis();
 
-        while(millis() > startMillis + 5000)
+        while(millis() < startMillis + 5000)
           {
             
           }
         desired_heading = yaw_angle - 180;
+        error = 100;
         while(error != 0)
           {
-            error = yaw_correction(error, desired_heading);
+            error = yaw_correction(desired_heading, yaw_angle);
             if(error>0)
             {
               turn_right();
@@ -82,12 +85,26 @@ void loop()
               turn_left();
             }
           }
-        stop();        
+        stop();    
+        flag_buzzer=true;    
 
       Serial.print("Pitch angle= ");
       Serial.print(kalmanfilter.angle,1); Serial.print(" deg   ");
       Serial.print("Pitch angular rate= ");
       Serial.print(kalmanfilter.angle_dot,2); Serial.println(" deg/s");
+
+      while(true)
+      {
+        if(hall_L < 90 || hall_L > 130)
+        {
+          digitalWrite(RPin,LOW);digitalWrite(GPin,LOW);digitalWrite(BPin,HIGH);
+        }
+        else if(hall_R < 90 || hall_R > 130)
+        {
+          digitalWrite(RPin,LOW);digitalWrite(GPin,HIGH);digitalWrite(BPin,LOW);
+        }        
+
+      }
     }
     
   }
