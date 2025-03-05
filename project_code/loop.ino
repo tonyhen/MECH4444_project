@@ -72,7 +72,7 @@ void loop()
             
           }
         desired_heading = yaw_angle - 180;
-        error = 100;
+        error = 10;
         while(error != 0)
           {
             error = yaw_correction(desired_heading, yaw_angle);
