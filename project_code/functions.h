@@ -27,27 +27,82 @@ float yaw_correction(float desired_heading, float yaw_angle) {
 }
 
 
-void turn_left()
+void turn_left(float error)
 {
+    if (abs(error) > 10)
+    {
+    spinr = 0;
+    spinl = 1;
+    }
+    else
+    {
+    spinr = 0;
+    spinl = 0;
     turnr = 0;
     turnl = 1;
+    }
 }
 
 
-void turn_right()
-
+void turn_right(float error)
+{
+    if (abs(error) > 10)
+    {
+    spinr = 1;
+    spinl = 0;
+    }
+    else
+    {
+    spinr = 0;
+    spinl = 0;
     turnr = 1;
     turnl = 0;
+    }
 }
 
 // Function to stop movement
-void stop() {
+void stop()
+{
     front = 0;
     back = 0;
     turnl = 0;
     turnr = 0;
     spinl = 0;
     spinr = 0;
+}
+
+
+
+// PID Pathfinding Function
+
+float pathfinding(float hall_L, float hall_R, float desired_heading)
+{
+  // PID Constants (Tune these experimentally)
+  float Kp = 1.5;  // Proportional gain
+  float Ki = 0.05; // Integral gain
+  float Kd = 0.8;  // Derivative gain
+
+  float previous_error = 0;
+  float integral = 0;
+  float target_value;
+  float drive_error = (hall_R - hall_L);  // Difference between left and right sensors
+
+    // Corner Detection: If both sensors deviate too much, adjust target dynamically
+    if (hall_L < 80 || hall_L > 140 || hall_R < 80 || hall_R > 140)
+    {
+        // Increase or decrease target value based on trend
+        target_value = (hall_L + hall_R) / 2;
+    }
+
+    integral += drive_error;  // Accumulate error
+    float derivative = drive_error - previous_error;  // Rate of change of error
+
+    float correction = (Kp * drive_error) + (Ki * integral) + (Kd * derivative);  // PID output
+
+    desired_heading += correction;  // Adjust heading
+    previous_error = drive_error;  // Store error for next loop
+
+    return desired_heading;
 }
 
 #endif
