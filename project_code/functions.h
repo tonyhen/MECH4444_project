@@ -43,7 +43,7 @@ void turn_left(float error)
     }
 }
 
-
+//function to turn right
 void turn_right(float error)
 {
     if (abs(error) > 10)
