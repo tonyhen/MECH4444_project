@@ -24,7 +24,12 @@ void inter()
     /*Serial.print(hall_R);
     Serial.print(" ");
     Serial.println(hall_L);*/
- 
+    moving_average(array_l, array_r, hall_L, hall_R, iterator);
+    iterator++;
+    if (iterator > 4)
+    {
+      iterator = 0;
+    }
     // check if buzzer is require to make a short beep
     if (flag_buzzer == true)
     {

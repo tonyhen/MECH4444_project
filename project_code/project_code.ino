@@ -169,3 +169,10 @@ uint8_t detTime=0;     // used to control how often the ultrasonic sensor is emp
 /****************Time***************************************/
 unsigned long currentMillis; // keep track of how long program has been running
 unsigned long startTime;     // keep track of how long program has been running
+
+//////////////////////////// Our volatiles
+volatile int iterator = 0;
+volatile float array_l[4] = {112, 112, 112, 112};
+volatile float array_r[4] = {112, 112, 112, 112};
+
+

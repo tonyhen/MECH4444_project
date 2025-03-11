@@ -45,6 +45,7 @@ void loop()
 
         startMillis = millis();
         flag_buzzer = true;
+        /*
         while(millis() < startMillis + 5000)
           {
             
@@ -92,27 +93,76 @@ void loop()
       Serial.print(kalmanfilter.angle,1); Serial.print(" deg   ");
       Serial.print("Pitch angular rate= ");
       Serial.print(kalmanfilter.angle_dot,2); Serial.println(" deg/s");
-
-      // Pathfinding Algorithm
-      desired_heading = yaw_angle;
+      */
+      const int normal = 112;
+      const int threshold = 20;
+      const int upper = normal + threshold;
+      const int lower = normal - threshold;
+      startTime = millis();
+      while(millis() < startTime + 10000){}
       while(true)
       {
-        desired_heading = pathfinding(hall_L, hall_R);
-        error = yaw_correction(desired_heading, yaw_angle);
-        if(error>0)
+        float hall_r_avg = compute_average(array_r);
+        float hall_l_avg = compute_average(array_l);
+        while ((upper > hall_l_avg) && (upper > hall_r_avg) && (hall_r_avg > lower) && (hall_l_avg > lower))
         {
-          turn_right(error);
+        hall_r_avg = compute_average(array_r);
+        hall_l_avg = compute_average(array_l);
+          front = 25;
+
         }
-        else
+        front = 0;
+
+        if (hall_l_avg < lower || hall_l_avg > upper) 
         {
-          turn_left(error);
+          startTime = millis();
+
+          if (hall_l_avg < 30 || hall_l_avg > 200)
+          { 
+          while (millis() < startTime + 100)
+          {
+          back = 10;
+          }
+          }
+          back = 0;
+          startTime = millis();
+          while (millis()< startTime + 50)
+          {
+          turn_left(1);
+          }
+          stop();
         }
+
+        if (hall_r_avg < lower || hall_r_avg > upper) 
+        { 
+          startTime = millis();
+          if (hall_r_avg < 30 || hall_r_avg > 200)
+          { 
+          while (millis() < startTime + 100)
+          {
+          back = 10;
+          }
+          }
+          back = 0;
+          startTime = millis();
+          while (millis()< startTime + 50){
+          turn_right(1);
+            
+          }
+          stop();
+
+        }
+
+
+
+
+      }
 
 
       }
 
     }
     
-  }
+  
 
 }
