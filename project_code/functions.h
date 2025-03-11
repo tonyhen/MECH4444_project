@@ -11,6 +11,7 @@ void turn_left(bool *turnl, bool *turnr);
 void turn_right(bool *turnl, bool *turnr);
 float pathfinding(float hall_R,float hall_L);
 void stop();  // Declare stop() before defining it
+void go();
 
 // Function to adjust yaw error
 float yaw_correction(float desired_heading, float yaw_angle) {
@@ -71,7 +72,16 @@ void stop()
     spinl = 0;
     spinr = 0;
 }
-
+void go()
+{
+    front = 20;
+    back = 0;
+    turnl = 0;
+    turnr = 0;
+    spinl = 0;
+    spinr = 0;
+}
+/*
 //new path finding code
 float pathfinding(float hall_L,float hall_R)
 {
@@ -103,7 +113,7 @@ float pathfinding(float hall_L,float hall_R)
     }
     return desired_heading;
 }
-
+*/
 
 // PID Pathfinding Function
 /*
