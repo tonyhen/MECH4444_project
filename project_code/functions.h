@@ -9,6 +9,7 @@ extern volatile bool turnl, turnr, spinl, spinr, spinl, spinr;
 float yaw_correction(float reference, float yaw_angle);
 void turn_left(bool *turnl, bool *turnr);
 void turn_right(bool *turnl, bool *turnr);
+float pathfinding(float hall_R,float hall_L);
 void stop();  // Declare stop() before defining it
 
 // Function to adjust yaw error
@@ -71,10 +72,40 @@ void stop()
     spinr = 0;
 }
 
+float pathfinding(float hall_L,float hall_R)
+{
+    if (hall_R > 140 || hall_R < 50)
+    {
+        stop();
+        desired_heading = yaw_angle;
+        unsigned long time_begin = millis();
+        while(time_begin + 1000 < mills())
+        {
+            back = 1;
+            digitalWrite(RPin,LOW);digitalWrite(GPin,HIGH);digitalWrite(BPin,LOW);
+        }
+        stop();
+    }
+    else if (hall_L > 140 || hall_L < 50)
+    {
+        stop();
+        desired_heading = yaw_angle;
+        unsigned long time_begin = millis();
+        while(time_begin + 1000 < millis())
+        {
+            back = 1;
+            digitalWrite(RPin,LOW);digitalWrite(GPin,LOW);digitalWrite(BPin,HIGH);
+        }
+        stop();
+
+
+    }
+    return desired_heading;
+}
 
 
 // PID Pathfinding Function
-
+/*
 float pathfinding(float hall_L, float hall_R, float desired_heading)
 {
   // PID Constants (Tune these experimentally)
@@ -104,5 +135,5 @@ float pathfinding(float hall_L, float hall_R, float desired_heading)
 
     return desired_heading;
 }
-
+*/
 #endif

@@ -52,25 +52,25 @@ void loop()
         flag_buzzer = true;
         desired_heading = yaw_angle + 180;
         while(error != 0)
-          {
-            error = yaw_correction(desired_heading, yaw_angle);
-            if(error>0)
-            {
-              turn_right(error);
-            }
-            else
-            {
-              turn_left(error);
-            }
-          }
+        {
+         error = yaw_correction(desired_heading, yaw_angle);
+         if(error>0)
+         {
+           turn_right(error);
+         }
+         else
+         {
+           turn_left(error);
+         }
+        }
         stop();
         flag_buzzer = true;
         startMillis = millis();
 
         while(millis() < startMillis + 5000)
-          {
+        {
             
-          }
+        }
         desired_heading = yaw_angle - 180;
         error = 10;
         while(error != 0)
@@ -93,24 +93,11 @@ void loop()
       Serial.print("Pitch angular rate= ");
       Serial.print(kalmanfilter.angle_dot,2); Serial.println(" deg/s");
 
-      while(true)
-      {
-        if(hall_L < 90 || hall_L > 130)
-        {
-          digitalWrite(RPin,LOW);digitalWrite(GPin,LOW);digitalWrite(BPin,HIGH);
-        }
-        else if(hall_R < 90 || hall_R > 130)
-        {
-          digitalWrite(RPin,LOW);digitalWrite(GPin,HIGH);digitalWrite(BPin,LOW);
-        }        
-
-      }
-
       // Pathfinding Algorithm
       desired_heading = yaw_angle;
       while(true)
       {
-        desired_heading = pathfinding(hall_L, hall_R, desired_heading);
+        desired_heading = pathfinding(hall_L, hall_R);
         error = yaw_correction(desired_heading, yaw_angle);
         if(error>0)
         {
