@@ -56,11 +56,11 @@ void loop()
             error = yaw_correction(desired_heading, yaw_angle);
             if(error>0)
             {
-              turn_right();
+              turn_right(error);
             }
             else
             {
-              turn_left();
+              turn_left(error);
             }
           }
         stop();
@@ -78,11 +78,11 @@ void loop()
             error = yaw_correction(desired_heading, yaw_angle);
             if(error>0)
             {
-              turn_right();
+              turn_right(error);
             }
             else
             {
-              turn_left();
+              turn_left(error);
             }
           }
         stop();    
@@ -105,6 +105,25 @@ void loop()
         }        
 
       }
+
+      // Pathfinding Algorithm
+      desired_heading = yaw_angle;
+      while(true)
+      {
+        desired_heading = pathfinding(hall_L, hall_R, desired_heading);
+        error = yaw_correction(desired_heading, yaw_angle);
+        if(error>0)
+        {
+          turn_right(error);
+        }
+        else
+        {
+          turn_left(error);
+        }
+
+
+      }
+
     }
     
   }
