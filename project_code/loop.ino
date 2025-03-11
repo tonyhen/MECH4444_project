@@ -45,37 +45,6 @@ void loop()
 
         startMillis = millis();
         flag_buzzer = true;
-        desired_heading = yaw_angle;
-          while(true)
-          {
-
-            if(hall_L > 140 OR hall_L < 100)
-            {
-              stop();
-              desired_heading += 10
-            }
-            if(hall_R > 140 OR hall_R < 100)
-            {
-              stop()
-              desired_heading -= 10
-            }
-            error = yaw_correction(desired_heading, yaw_angle);
-            if(error>0)
-            {
-              turn_right(error);
-            }
-            else
-            {
-              turn_left(error);
-            }
-
-          }
-
-
-
-
-
-        /*
         while(millis() < startMillis + 5000)
           {
             
@@ -83,27 +52,27 @@ void loop()
         flag_buzzer = true;
         desired_heading = yaw_angle + 180;
         while(error != 0)
-          {
-            error = yaw_correction(desired_heading, yaw_angle);
-            if(error>0)
-            {
-              turn_right(error);
-            }
-            else
-            {
-              turn_left(error);
-            }
-          }
+        {
+         error = yaw_correction(desired_heading, yaw_angle);
+         if(error>0)
+         {
+           turn_right(error);
+         }
+         else
+         {
+           turn_left(error);
+         }
+        }
         stop();
         flag_buzzer = true;
         startMillis = millis();
 
         while(millis() < startMillis + 5000)
-          {
+        {
             
-          }
+        }
         desired_heading = yaw_angle - 180;
-        error = 100;
+        error = 10;
         while(error != 0)
           {
             error = yaw_correction(desired_heading, yaw_angle);
@@ -124,32 +93,11 @@ void loop()
       Serial.print("Pitch angular rate= ");
       Serial.print(kalmanfilter.angle_dot,2); Serial.println(" deg/s");
 
-      while(true)
-      {
-        if(hall_L < 90 || hall_L > 130)
-        {
-          digitalWrite(RPin,LOW);digitalWrite(GPin,LOW);digitalWrite(BPin,HIGH);
-        }
-        else if(hall_R < 90 || hall_R > 130)
-        {
-          digitalWrite(RPin,LOW);digitalWrite(GPin,HIGH);digitalWrite(BPin,LOW);
-        }        
-
-      }
-
-      while(true)
-
-
-
-
-      /*
       // Pathfinding Algorithm
       desired_heading = yaw_angle;
-      float previous_error = 0;
-      front = 1;
       while(true)
       {
-        error = pathfinding(error, hall_R, hall_L);
+        desired_heading = pathfinding(hall_L, hall_R);
         error = yaw_correction(desired_heading, yaw_angle);
         if(error>0)
         {
@@ -159,8 +107,12 @@ void loop()
         {
           turn_left(error);
         }
+
+
       }
-      */
+
     }
+    
   }
+
 }

@@ -9,6 +9,7 @@ extern volatile bool turnl, turnr, spinl, spinr, spinl, spinr;
 float yaw_correction(float reference, float yaw_angle);
 void turn_left(bool *turnl, bool *turnr);
 void turn_right(bool *turnl, bool *turnr);
+float pathfinding(float hall_R,float hall_L);
 void stop();  // Declare stop() before defining it
 
 // Function to adjust yaw error
@@ -71,20 +72,69 @@ void stop()
     spinr = 0;
 }
 
-
-/*
-// PID Pathfinding Function
-
-float pathfinding(float error, float hall_R, float hall_L)
+//new path finding code
+float pathfinding(float hall_L,float hall_R)
 {
-    float kp = 1.0;
-    float kd = 0.01;
-    float previous_error = error;
-    float drive_error = abs(123.0 - hall_R) - abs(123.0 - hall_L);
+    if (hall_R > 140 || hall_R < 50)
+    {
+        stop();
+        desired_heading = yaw_angle;
+        unsigned long time_begin = millis();
+        while(time_begin + 1000 < mills())
+        {
+            back = 1;
+            digitalWrite(RPin,LOW);digitalWrite(GPin,HIGH);digitalWrite(BPin,LOW);
+        }
+        stop();
+    }
+    else if (hall_L > 140 || hall_L < 50)
+    {
+        stop();
+        desired_heading = yaw_angle;
+        unsigned long time_begin = millis();
+        while(time_begin + 1000 < millis())
+        {
+            back = 1;
+            digitalWrite(RPin,LOW);digitalWrite(GPin,LOW);digitalWrite(BPin,HIGH);
+        }
+        stop();
 
-    error = kp * drive_error + kd * (error - previous_error);
 
-    return error;
+    }
+    return desired_heading;
+}
+
+
+// PID Pathfinding Function
+/*
+float pathfinding(float hall_L, float hall_R, float desired_heading)
+{
+  // PID Constants (Tune these experimentally)
+  float Kp = 1.5;  // Proportional gain
+  float Ki = 0.05; // Integral gain
+  float Kd = 0.8;  // Derivative gain
+
+  float previous_error = 0;
+  float integral = 0;
+  float target_value;
+  float drive_error = (hall_R - hall_L);  // Difference between left and right sensors
+
+    // Corner Detection: If both sensors deviate too much, adjust target dynamically
+    if (hall_L < 80 || hall_L > 140 || hall_R < 80 || hall_R > 140)
+    {
+        // Increase or decrease target value based on trend
+        target_value = (hall_L + hall_R) / 2;
+    }
+
+    integral += drive_error;  // Accumulate error
+    float derivative = drive_error - previous_error;  // Rate of change of error
+
+    float correction = (Kp * drive_error) + (Ki * integral) + (Kd * derivative);  // PID output
+
+    desired_heading += correction;  // Adjust heading
+    previous_error = drive_error;  // Store error for next loop
+
+    return desired_heading;
 }
 */
 #endif
