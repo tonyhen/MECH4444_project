@@ -45,6 +45,37 @@ void loop()
 
         startMillis = millis();
         flag_buzzer = true;
+        desired_heading = yaw_angle;
+          while(true)
+          {
+
+            if(hall_L > 140 OR hall_L < 100)
+            {
+              stop();
+              desired_heading += 10
+            }
+            if(hall_R > 140 OR hall_R < 100)
+            {
+              stop()
+              desired_heading -= 10
+            }
+            error = yaw_correction(desired_heading, yaw_angle);
+            if(error>0)
+            {
+              turn_right(error);
+            }
+            else
+            {
+              turn_left(error);
+            }
+
+          }
+
+
+
+
+
+        /*
         while(millis() < startMillis + 5000)
           {
             
@@ -106,11 +137,19 @@ void loop()
 
       }
 
+      while(true)
+
+
+
+
+      /*
       // Pathfinding Algorithm
       desired_heading = yaw_angle;
+      float previous_error = 0;
+      front = 1;
       while(true)
       {
-        desired_heading = pathfinding(hall_L, hall_R, desired_heading);
+        error = pathfinding(error, hall_R, hall_L);
         error = yaw_correction(desired_heading, yaw_angle);
         if(error>0)
         {
@@ -120,12 +159,8 @@ void loop()
         {
           turn_left(error);
         }
-
-
       }
-
+      */
     }
-    
   }
-
 }

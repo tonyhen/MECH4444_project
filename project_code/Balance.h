@@ -24,7 +24,7 @@ public:
 private:
 	float speeds_filterold;  // speed complementary filtering
 	float positions;         // speed error
-  float turnmax = 0;       // Rotate the output amplitude
+    float turnmax = 0;       // Rotate the output amplitude
 	float turnmin = 0;       // Rotate the output amplitude
 	float turnout = 0;       // yaw turn angle error
 	bool  flag1 = 0;         // motor stop flag

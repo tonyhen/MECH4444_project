@@ -72,37 +72,19 @@ void stop()
 }
 
 
-
+/*
 // PID Pathfinding Function
 
-float pathfinding(float hall_L, float hall_R, float desired_heading)
+float pathfinding(float error, float hall_R, float hall_L)
 {
-  // PID Constants (Tune these experimentally)
-  float Kp = 1.5;  // Proportional gain
-  float Ki = 0.05; // Integral gain
-  float Kd = 0.8;  // Derivative gain
+    float kp = 1.0;
+    float kd = 0.01;
+    float previous_error = error;
+    float drive_error = abs(123.0 - hall_R) - abs(123.0 - hall_L);
 
-  float previous_error = 0;
-  float integral = 0;
-  float target_value;
-  float drive_error = (hall_R - hall_L);  // Difference between left and right sensors
+    error = kp * drive_error + kd * (error - previous_error);
 
-    // Corner Detection: If both sensors deviate too much, adjust target dynamically
-    if (hall_L < 80 || hall_L > 140 || hall_R < 80 || hall_R > 140)
-    {
-        // Increase or decrease target value based on trend
-        target_value = (hall_L + hall_R) / 2;
-    }
-
-    integral += drive_error;  // Accumulate error
-    float derivative = drive_error - previous_error;  // Rate of change of error
-
-    float correction = (Kp * drive_error) + (Ki * integral) + (Kd * derivative);  // PID output
-
-    desired_heading += correction;  // Adjust heading
-    previous_error = drive_error;  // Store error for next loop
-
-    return desired_heading;
+    return error;
 }
-
+*/
 #endif
