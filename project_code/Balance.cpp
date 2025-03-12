@@ -167,7 +167,7 @@ void Balance::pwma(float speedoutput,float rotationoutput,float angle,float roll
   // results of controllers are superimposed
   pwm1 = -angleoutput - speedoutput - rotationoutput; //Left motor PWM output value, rotation command opposite 
                                                       // to each motor
-  pwm2 = -angleoutput - speedoutput + rotationoutput; //Right motor PWM output value
+  pwm2 = 2 * (-angleoutput - speedoutput + rotationoutput); //Right motor PWM output value
 
   // pwm amplitude limit
   const uint8_t pwm_max = 100;  // maximum value is 255 but avoid using too large a value to prevent damage to robot
