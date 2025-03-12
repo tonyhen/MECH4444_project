@@ -1,168 +1,137 @@
 /* main high-level control loop */
-void loop() 
-{
-  // don't use the delay() function as it blocks code and prevents 
+void loop() {
+  // don't use the delay() function as it blocks code and prevents
   // "back" "front" etc. from updating correctly in the ISR
 
   // using Serial.print() functions slows the code down and can reduce control performance
-  
+
   // BNO055 IMU yaw angle (compass heading) is stored in variable: yaw_angle
   // values read from left and right Hall sensors are stored in variables: hall_L, hall_R
   // distance in cm to target from ultrasonic sensor is stored in variable: distance
   // estimated distance travelled along ground in terms of left and right encoder pulses are stored
   // in variables: ldistance, rdistance
-  
-  currentMillis = millis(); // time since Arduino turned on (ms)
-  currentMillis = currentMillis-startTime; // want time since setup() has finished
-  float error = 10;
-  float ROT; 
-  float desired_heading;
 
-  
+  currentMillis = millis();                   // time since Arduino turned on (ms)
+  currentMillis = currentMillis - startTime;  // want time since setup() has finished
+  float error = 10;
+  float ROT;
+  float desired_heading;
+  float right_old = 112;
+  float left_old = 112;
+  bool left_flag = 0;
+  bool right_flag = 0;
+  unsigned long right_time;
+  unsigned long left_time;
   if (currentMillis <= 4000)  // wait 4s before moving for robot to gain its balance on the ground
   {
-    front = 0; back = 0; turnl = 0; turnr = 0; spinl = 0; spinr = 0; turnoutput = 0;
+    front = 0;
+    back = 0;
+    turnl = 0;
+    turnr = 0;
+    spinl = 0;
+    spinr = 0;
+    turnoutput = 0;
     flag_wait = true;
+  } else {
+    flag_wait = false;  // flag to indicate it is ok to start moving
+    digitalWrite(RPin, HIGH);
+    digitalWrite(GPin, LOW);
+    digitalWrite(BPin, HIGH);  // turn on Green LED
   }
-  else
+  if (flag_wait == false)  // ok to start doing something
   {
-    flag_wait = false; // flag to indicate it is ok to start moving
-    digitalWrite(RPin,HIGH); digitalWrite(GPin,LOW); digitalWrite(BPin,HIGH); // turn on Green LED
-  }
-  if (flag_wait == false) // ok to start doing something
-  {     
     // to validate pitch angle estimates from Kalman filter, take average of 25 Kalman filter estimates
     // *************************************************************************************************
     // *** ensure pwm motor commands at end of Balance.cpp are commented out so motor does not turn ****
     // *************************************************************************************************
-    while(true)
-    {
-        long int startMillis = millis(); // time since Arduino turned on (ms)
-        while(millis() < startMillis + 100)
-          {
-            // wait for .1 second
-          }
-
-        startMillis = millis();
-        flag_buzzer = true;
-        /*
-        while(millis() < startMillis + 5000)
-          {
-            
-          }
-        flag_buzzer = true;
-        desired_heading = yaw_angle + 180;
-        while(error != 0)
-        {
-         error = yaw_correction(desired_heading, yaw_angle);
-         if(error>0)
-         {
-           turn_right(error);
-         }
-         else
-         {
-           turn_left(error);
-         }
-        }
-        stop();
-        flag_buzzer = true;
-        startMillis = millis();
-
-        while(millis() < startMillis + 5000)
-        {
-            
-        }
-        desired_heading = yaw_angle - 180;
-        error = 10;
-        while(error != 0)
-          {
-            error = yaw_correction(desired_heading, yaw_angle);
-            if(error>0)
-            {
-              turn_right(error);
-            }
-            else
-            {
-              turn_left(error);
-            }
-          }
-        stop();    
-        flag_buzzer=true;    
-
-      Serial.print("Pitch angle= ");
-      Serial.print(kalmanfilter.angle,1); Serial.print(" deg   ");
-      Serial.print("Pitch angular rate= ");
-      Serial.print(kalmanfilter.angle_dot,2); Serial.println(" deg/s");
-      */
+    while (true) {
+      long int startMillis = millis();  // time since Arduino turned on (ms)
+      while (millis() < startMillis + 100) {
+        // wait for .1 second
+      }
       const int normal = 112;
       const int threshold = 20;
       const int upper = normal + threshold;
       const int lower = normal - threshold;
       startTime = millis();
-      while(millis() < startTime + 10000){}
-      while(true)
+      while (true) 
       {
-        float hall_r_avg = compute_average(array_r);
-        float hall_l_avg = compute_average(array_l);
-        while ((upper > hall_l_avg) && (upper > hall_r_avg) && (hall_r_avg > lower) && (hall_l_avg > lower))
-        {
-        hall_r_avg = compute_average(array_r);
-        hall_l_avg = compute_average(array_l);
-          front = 25;
+        digitalWrite(RPin,LOW);
+        digitalWrite(BPin,LOW);
+        digitalWrite(GPin,LOW);
+        float abs_error_left = abs(hall_L - normal);
+        float abs_error_right = abs(hall_R - normal);
+        
 
+        while ((upper > hall_L) && (upper > hall_R) && (hall_R > lower) && (hall_L > lower)) 
+        {
+          front = 10;
         }
+
         front = 0;
 
-        if (hall_l_avg < lower || hall_l_avg > upper) 
+        if (hall_L > upper || hall_L < lower) 
         {
+          left_time = millis();
+          left_flag = 1;
+          digitalWrite(RPin,LOW);
+          digitalWrite(BPin,HIGH);
+          digitalWrite(GPin,LOW);
           startTime = millis();
-
-          if (hall_l_avg < 30 || hall_l_avg > 200)
-          { 
-          while (millis() < startTime + 100)
+          while (millis() < startTime + 50) 
           {
-          back = 10;
-          }
-          }
-          back = 0;
-          startTime = millis();
-          while (millis()< startTime + 50)
-          {
-          turn_left(1);
+            turn_left(1);
           }
           stop();
         }
-
-        if (hall_r_avg < lower || hall_r_avg > upper) 
-        { 
+        else 
+        {
+          left_flag = 0;
+        }
+        if (hall_R > upper || hall_R < lower) 
+        {
+          right_time = millis();
+          right_flag = 1;
+          digitalWrite(RPin,HIGH);
+          digitalWrite(BPin,LOW);
+          digitalWrite(GPin,LOW);
           startTime = millis();
-          if (hall_r_avg < 30 || hall_r_avg > 200)
-          { 
-          while (millis() < startTime + 100)
+          while (millis() < startTime + 50) 
           {
-          back = 10;
-          }
-          }
-          back = 0;
-          startTime = millis();
-          while (millis()< startTime + 50){
-          turn_right(1);
-            
+            turn_right(1);
           }
           stop();
-
+        }
+        else {
+        right_flag = 0;
         }
 
-
-
-
+        if((left_flag == 1) && (right_flag == 1))
+        {
+          flag_buzzer = true;
+          if (right_time > left_time)
+          {
+            stop();
+            startTime = millis();
+            while(millis() < startTime + 1000)
+            {
+              spinr = 1;
+            }
+            stop();
+          }
+          if (right_time < left_time)
+          {
+            stop();
+            startTime = millis();
+            while(millis() < startTime + 1500)
+            {
+              spinl = 1;
+            }
+            stop();
+          }
+        }
+        
       }
-
-
-      }
-
     }
-    
-  
-
+  }
 }

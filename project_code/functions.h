@@ -34,27 +34,16 @@ void turn_left(float error)
     {
     spinr = 0;
     spinl = 1;
+    back = 2;
     }
     else
     {
+    back = 1;
     spinr = 0;
     spinl = 0;
     turnr = 0;
     turnl = 1;
     }
-}
-void moving_average(float array_l[], float array_r[], float hall_L, float hall_R, int iterator) {
-    // Store new values in circular buffer
-    array_l[iterator] = hall_L;
-    array_r[iterator] = hall_R;
-}
-
-float compute_average(float array[]) {
-    float sum = 0.0;
-    for (int i = 0; i < 10; i++) {
-        sum += array[i];
-    }
-    return sum / 4;
 }
 
 void turn_right(float error)
@@ -63,16 +52,17 @@ void turn_right(float error)
     {
     spinr = 1;
     spinl = 0;
+    back = 0;
     }
     else
     {
+    back  = 1;
     spinr = 0;
     spinl = 0;
     turnr = 1;
     turnl = 0;
     }
 }
-
 // Function to stop movement
 void stop()
 {
