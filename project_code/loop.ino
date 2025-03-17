@@ -14,10 +14,14 @@ void loop() {
   currentMillis = millis();                   // time since Arduino turned on (ms)
   currentMillis = currentMillis - startTime;  // want time since setup() has finished
   float error = 10;
-  //float ROT;
+  float ROT;
   float desired_heading;
-
-
+  float right_old = 112;
+  float left_old = 112;
+  bool left_flag = 0;
+  bool right_flag = 0;
+  unsigned long right_time;
+  unsigned long left_time;
   if (currentMillis <= 4000)  // wait 4s before moving for robot to gain its balance on the ground
   {
     front = 0;
@@ -40,121 +44,94 @@ void loop() {
     // *************************************************************************************************
     // *** ensure pwm motor commands at end of Balance.cpp are commented out so motor does not turn ****
     // *************************************************************************************************
-    const float normal_value = 112;
-    const float bound = 10;
-
     while (true) {
-      //long int startMillis = millis(); // time since Arduino turned on (ms)
-      //while(millis() < startMillis + 100)
-      //{
-      // wait for .1 second
-      //}
-      go();
-      if (hall_R > normal_value + bound || hall_R < normal_value - bound) {
-        stop();
-        desired_heading = yaw_angle;
-        unsigned long time_begin = millis();
-        while (time_begin + 1000 < millis()) {
-          back = 25;
-          digitalWrite(RPin, LOW);
-          digitalWrite(GPin, HIGH);
-          digitalWrite(BPin, LOW);
-        }
-        stop();
+      long int startMillis = millis();  // time since Arduino turned on (ms)
+      while (millis() < startMillis + 100) {
+        // wait for .1 second
       }
-      if (hall_L > normal_value + bound || hall_L < normal_value - bound) {
-        stop();
-        desired_heading = yaw_angle;
-        unsigned long time_begin = millis();
-        while (time_begin + 1000 < millis()) {
-          back = 25;
-          digitalWrite(RPin, LOW);
-          digitalWrite(GPin, LOW);
-          digitalWrite(BPin, HIGH);
-        }
-        stop();
-      }
-      while (error != 0) {
-        error = yaw_correction(desired_heading, yaw_angle);
-        if (error > 0) {
-          turn_right(error);
-        } else {
-          turn_left(error);
-        }
-      }
-    }
-  }
-}
-/*
-        startMillis = millis();
-        flag_buzzer = true;
-        while(millis() < startMillis + 5000)
-          {
-            
-          }
-        flag_buzzer = true;
-        desired_heading = yaw_angle + 180;
-        while(error != 0)
-        {
-         error = yaw_correction(desired_heading, yaw_angle);
-         if(error>0)
-         {
-           turn_right(error);
-         }
-         else
-         {
-           turn_left(error);
-         }
-        }
-        stop();
-        flag_buzzer = true;
-        startMillis = millis();
-
-        while(millis() < startMillis + 5000)
-        {
-            
-        }
-        desired_heading = yaw_angle - 180;
-        error = 10;
-        while(error != 0)
-          {
-            error = yaw_correction(desired_heading, yaw_angle);
-            if(error>0)
-            {
-              turn_right(error);
-            }
-            else
-            {
-              turn_left(error);
-            }
-          }
-        stop();    
-        flag_buzzer=true;    
-
-      Serial.print("Pitch angle= ");
-      Serial.print(kalmanfilter.angle,1); Serial.print(" deg   ");
-      Serial.print("Pitch angular rate= ");
-      Serial.print(kalmanfilter.angle_dot,2); Serial.println(" deg/s");
-
-      // Pathfinding Algorithm
-      desired_heading = yaw_angle;
-      while(true)
+      const int normal = 112;
+      const int threshold = 20;
+      const int upper = normal + threshold;
+      const int lower = normal - threshold;
+      startTime = millis();
+      while (true) 
       {
-        desired_heading = pathfinding(hall_L, hall_R);
-        error = yaw_correction(desired_heading, yaw_angle);
-        if(error>0)
+        digitalWrite(RPin,LOW);
+        digitalWrite(BPin,LOW);
+        digitalWrite(GPin,LOW);
+        float abs_error_left = abs(hall_L - normal);
+        float abs_error_right = abs(hall_R - normal);
+        
+
+        while ((upper > hall_L) && (upper > hall_R) && (hall_R > lower) && (hall_L > lower)) 
         {
-          turn_right(error);
+          front = 10;
         }
-        else
+
+        front = 0;
+
+        if (hall_L > upper || hall_L < lower) 
         {
-          turn_left(error);
+          left_time = millis();
+          left_flag = 1;
+          digitalWrite(RPin,LOW);
+          digitalWrite(BPin,HIGH);
+          digitalWrite(GPin,LOW);
+          startTime = millis();
+          while (millis() < startTime + 50) 
+          {
+            turn_left(1);
+          }
+          stop();
         }
+        else 
+        {
+          left_flag = 0;
+        }
+        if (hall_R > upper || hall_R < lower) 
+        {
+          right_time = millis();
+          right_flag = 1;
+          digitalWrite(RPin,HIGH);
+          digitalWrite(BPin,LOW);
+          digitalWrite(GPin,LOW);
+          startTime = millis();
+          while (millis() < startTime + 50) 
+          {
+            turn_right(1);
+          }
+          stop();
+        }
+        else {
+        right_flag = 0;
+        }
+
+        if((left_flag == 1) && (right_flag == 1))
+        {
+          flag_buzzer = true;
+          if (right_time > left_time)
+          {
+            stop();
+            startTime = millis();
+            while(millis() < startTime + 1000)
+            {
+              spinr = 1;
+            }
+            stop();
+          }
+          if (right_time < left_time)
+          {
+            stop();
+            startTime = millis();
+            while(millis() < startTime + 1500)
+            {
+              spinl = 1;
+            }
+            stop();
+          }
+        }
+        
       }
-
     }
-    
   }
-
 }
-*\

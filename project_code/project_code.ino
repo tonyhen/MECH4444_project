@@ -162,10 +162,14 @@ volatile bool    spinl = 0; // spin left  variable (spin is just a faster turn, 
 volatile bool    spinr = 0; // spin right variable (spin is just a faster turn, 1 = spin right, 0 = don't spin right)
 
 /***************Ultrasonic distance sensor******************/
-int distance=1000; // cm, set initial distance to be far so does not beep when checking 
+int distance=10; // cm, set initial distance to be far so does not beep when checking 
                    // for object in front (distance < x)
 uint8_t detTime=0;     // used to control how often the ultrasonic sensor is employed
 
 /****************Time***************************************/
 unsigned long currentMillis; // keep track of how long program has been running
 unsigned long startTime;     // keep track of how long program has been running
+
+
+
+

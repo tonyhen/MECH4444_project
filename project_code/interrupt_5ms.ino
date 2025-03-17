@@ -21,11 +21,7 @@ void inter()
     // read from Hall effect sensors
     hall_L = analogRead(hall_L_pin);
     hall_R = analogRead(hall_R_pin);
-    Serial.print(hall_R);
-    Serial.print(" ");
-    Serial.println(hall_L);
- 
-    // check if buzzer is require to make a short beep
+
     if (flag_buzzer == true)
     {
       digitalWrite(buzzerPin, HIGH);
