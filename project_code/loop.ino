@@ -50,9 +50,10 @@ void loop() {
         // wait for .1 second
       }
       const int normal = 112;
-      const int threshold = 20;
+      const int threshold = 10;
       const int upper = normal + threshold;
       const int lower = normal - threshold;
+      const int turn_time = 10;
       startTime = millis();
       while (true) 
       {
@@ -67,9 +68,7 @@ void loop() {
         {
           front = 10;
         }
-
-        front = 0;
-
+        stop();
         if (hall_L > upper || hall_L < lower) 
         {
           left_time = millis();
@@ -78,7 +77,7 @@ void loop() {
           digitalWrite(BPin,HIGH);
           digitalWrite(GPin,LOW);
           startTime = millis();
-          while (millis() < startTime + 50) 
+          while (millis() < startTime + turn_time) 
           {
             turn_left(1);
           }
@@ -96,7 +95,7 @@ void loop() {
           digitalWrite(BPin,LOW);
           digitalWrite(GPin,LOW);
           startTime = millis();
-          while (millis() < startTime + 50) 
+          while (millis() < startTime + turn_time) 
           {
             turn_right(1);
           }
@@ -113,7 +112,7 @@ void loop() {
           {
             stop();
             startTime = millis();
-            while(millis() < startTime + 1000)
+            while(millis() < startTime + 2000)
             {
               spinr = 1;
             }

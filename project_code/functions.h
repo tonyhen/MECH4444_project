@@ -38,7 +38,7 @@ void turn_left(float error)
     }
     else
     {
-    back = 1;
+    back = 0;
     spinr = 0;
     spinl = 0;
     turnr = 0;
@@ -56,7 +56,7 @@ void turn_right(float error)
     }
     else
     {
-    back  = 1;
+    back  = 0;
     spinr = 0;
     spinl = 0;
     turnr = 1;
