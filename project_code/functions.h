@@ -74,6 +74,18 @@ void stop()
     spinr = 0;
 }
 
+float ultrasonic_dist(int dist, int window_size)
+{
+    int distance_readings[window_size];
+    float sum_dist = 0;
+    for(int i=0;i<window_size;i++)
+    {
+        distance_readings[i] = dist;
+        sum_dist += distance_readings[i];
+    }
+    float avg_dist = sum_dist/window_size;
+    return avg_dist;
+}
 
 
 #endif
