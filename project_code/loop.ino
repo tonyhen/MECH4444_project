@@ -112,7 +112,7 @@ void loop() {
           {
             stop();
             startTime = millis();
-            while(millis() < startTime + 2000)
+            while(millis() < startTime + 1500)
             {
               spinr = 1;
             }
