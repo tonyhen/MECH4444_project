@@ -131,10 +131,9 @@ void loop() {
         }
         //ultrasonic distance measurements
         int desired_distance = 10; //desired distance in cm
-        float actual_distance = ultrasonic_dist(distance,5);   //get the average of distance measurements
-        float dist_error = actual_distance - desired_distance; //calculate the error between the  distances
+        Serial.println(distance);
         //while the distance error is in between 1 cm
-        while(abs(dist_error) < 1)
+        while(abs(ultrasonic_dist(distance,5) - desired_distance) < 1)
         {
             stop();
         }

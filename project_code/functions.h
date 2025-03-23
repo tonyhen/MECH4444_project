@@ -10,6 +10,7 @@ float yaw_correction(float reference, float yaw_angle);
 void turn_left(bool *turnl, bool *turnr);
 void turn_right(bool *turnl, bool *turnr);
 float pathfinding(float hall_R,float hall_L);
+float ultrasonic_dist(int dist,int window_size);
 void stop();  // Declare stop() before defining it
 
 // Function to adjust yaw error
