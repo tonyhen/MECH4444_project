@@ -14,14 +14,18 @@ void loop() {
   currentMillis = millis();                   // time since Arduino turned on (ms)
   currentMillis = currentMillis - startTime;  // want time since setup() has finished
   float error = 10;
-  float ROT;
-  float desired_heading;
-  float right_old = 112;
-  float left_old = 112;
-  bool left_flag = 0;
-  bool right_flag = 0;
-  unsigned long right_time;
-  unsigned long left_time;
+  float ROT; // Variable to hold the amount of rotation in degrees
+  float desired_heading; // Variable to hold the desired heading in degrees
+  bool left_flag = 0; //Flag for error correcting spin function left wheel
+  bool right_flag = 0; // Flag for error correcting spin function right wheel
+  unsigned long right_time; // variable for when a wheel detects the strip
+  unsigned long left_time; // Variable for when the left wheel detects the strip
+  const int desired_distance = 10; //desired distance in cm
+  bool at_distance = 0;
+
+
+  // Existing Code to initialize balancing and gain balance provided by Dr. Bauer
+
   if (currentMillis <= 4000)  // wait 4s before moving for robot to gain its balance on the ground
   {
     front = 0;
@@ -38,99 +42,125 @@ void loop() {
     digitalWrite(GPin, LOW);
     digitalWrite(BPin, HIGH);  // turn on Green LED
   }
+
+
   if (flag_wait == false)  // ok to start doing something
+
+  // End of Dr.Bauer's initialization and balance code
+
   {
-    // to validate pitch angle estimates from Kalman filter, take average of 25 Kalman filter estimates
-    // *************************************************************************************************
-    // *** ensure pwm motor commands at end of Balance.cpp are commented out so motor does not turn ****
-    // *************************************************************************************************
     while (true) {
       long int startMillis = millis();  // time since Arduino turned on (ms)
-      while (millis() < startMillis + 100) {
+      while (millis() < startMillis + 100)
+      {
         // wait for .1 second
       }
-      const int normal = 112;
-      const int threshold = 10;
-      const int upper = normal + threshold;
-      const int lower = normal - threshold;
-      const int turn_time = 10;
+      const int normal = 112; // Nominal hall effect sensor values
+      const int threshold = 10; // Deadzone to determine when a wheel intersects magnetic strip
+      const int upper = normal + threshold; // Upper threshold for magnetic strip detection
+      const int lower = normal - threshold; // Lower threshold for magnetic strip detection
+      const int turn_time = 10; // Variale for how long a turn should be completed after detection
       startTime = millis();
-      while (true) 
+      while (true)
       {
+        // Turn LEDs WHITE if magnetic strip not detected
         digitalWrite(RPin,LOW);
         digitalWrite(BPin,LOW);
         digitalWrite(GPin,LOW);
-        float abs_error_left = abs(hall_L - normal);
-        float abs_error_right = abs(hall_R - normal);
-        
 
-        while ((upper > hall_L) && (upper > hall_R) && (hall_R > lower) && (hall_L > lower)) 
+        // Checks that both wheels are not detecting and drives forward
+        while ((upper > hall_L) && (upper > hall_R) && (hall_R > lower) && (hall_L > lower)) && (at_distance = 0)
         {
-          front = 10;
+          front = 10; // Drive forward at speed 10
+          if (abs(ultrasonic_dist(distance,5) - desired_distance) < 1) // Check if for wall object
+          {
+            stop(); // Stop the vehicle at that spot
+            bool at_distance = 1;
+          }
         }
-        stop();
-        if (hall_L > upper || hall_L < lower) 
+
+
+        stop(); // If magnetic strip detected stop robot
+
+
+        if (hall_L > upper || hall_L < lower) // If left side detects strip turn left
         {
-          left_time = millis();
-          left_flag = 1;
+          left_time = millis(); // Stores time of detection
+          left_flag = 1; // Stores that the strip is detected
+
+          // Turns LED Blue after detecting left strip
           digitalWrite(RPin,LOW);
           digitalWrite(BPin,HIGH);
           digitalWrite(GPin,LOW);
-          startTime = millis();
-          while (millis() < startTime + turn_time) 
+          startTime = millis(); // Stores time for turn time
+          while (millis() < startTime + turn_time) //turns for a set amount of time
           {
-            turn_left(1);
+            turn_left(); // Turn left function
           }
-          stop();
+          stop(); //Stops after turn function complete
         }
         else 
         {
           left_flag = 0;
         }
-        if (hall_R > upper || hall_R < lower) 
+
+
+        if (hall_R > upper || hall_R < lower)  //If right side detects strip turn right
         {
-          right_time = millis();
-          right_flag = 1;
+          right_time = millis(); // stores time of detection
+          right_flag = 1; // Stores that the strip is detected
+
+          // Set LED Red if right strip detected
           digitalWrite(RPin,HIGH);
           digitalWrite(BPin,LOW);
           digitalWrite(GPin,LOW);
-          startTime = millis();
-          while (millis() < startTime + turn_time) 
+
+          startTime = millis(); //Stores time for turn time
+          while (millis() < startTime + turn_time) //turns for a set amount of time
           {
-            turn_right(1);
+            turn_right(); // Turn right function
           }
-          stop();
+          stop(); // Stop after turn time complete
         }
         else {
         right_flag = 0;
         }
 
+
+        // following logic is for when both wheels detect the strip meaning the robot is orthogonal to the strip length
+
         if((left_flag == 1) && (right_flag == 1))
         {
-          flag_buzzer = true;
-          if (right_time > left_time)
+          flag_buzzer = true; // Ring buzzer to show that logic is active
+
+          if (right_time > left_time) // Checks which wheel hit it first to determine turn direction
           {
-            stop();
+            stop(); // Stops motion
             startTime = millis();
-            while(millis() < startTime + 1500)
+            while(millis() < startTime + 1500) // Spin Right for 1.5 seconds
             {
               spinr = 1;
             }
-            stop();
+            stop(); // Stop
           }
-          if (right_time < left_time)
+          if (right_time < left_time) // Checks which wheel hit it first to determine turn direction
           {
             stop();
             startTime = millis();
-            while(millis() < startTime + 1500)
+            while(millis() < startTime + 1500) // Spin Left for 1.5 seconds
             {
               spinl = 1;
             }
-            stop();
+            stop(); // Stop
           }
         }
+
+
+
+
         //ultrasonic distance measurements
-        int desired_distance = 10; //desired distance in cm
+        while (at_distance == 1)
+        {
         Serial.println(distance);
         //while the distance error is in between 1 cm
         while(abs(ultrasonic_dist(distance,5) - desired_distance) < 1)
@@ -138,6 +168,19 @@ void loop() {
             stop();
         }
 
+        if (ultrasonic_dist(distance,5) - desired_distance > 1) // If too far move forward
+        {
+            back = 0;
+            front = 5;
+        }
+
+        else // IF too close reverse
+        {
+            front = 0;
+            back = 5;
+        }
+
+        }
       }
     }
   }
