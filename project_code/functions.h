@@ -7,13 +7,12 @@ extern volatile bool turnl, turnr, spinl, spinr, spinl, spinr;
 
 // Function prototypes
 float yaw_correction(float reference, float yaw_angle);
-void turn_left(bool *turnl, bool *turnr);
-void turn_right(bool *turnl, bool *turnr);
-float pathfinding(float hall_R,float hall_L);
+void turn_left();
+void turn_right();
 float ultrasonic_dist(int dist,int window_size);
 void stop();  // Declare stop() before defining it
 
-// Function to adjust yaw error
+// Function to adjust yaw error to account for going through 0 or 360 degrees
 float yaw_correction(float desired_heading, float yaw_angle) {
     int error = desired_heading - yaw_angle;  // Adjust error based on reference
     if (error > 180) 
@@ -28,53 +27,39 @@ float yaw_correction(float desired_heading, float yaw_angle) {
     return error;  // Return corrected yaw error
 }
 
-
+// Left turn function, sets everything except the turn left flag to 0
 void turn_left(float error)
 {
-    if (abs(error) > 10)
-    {
-    spinr = 0;
-    spinl = 1;
-    back = 2;
-    }
-    else
-    {
+    front = 0;
     back = 0;
     spinr = 0;
     spinl = 0;
     turnr = 0;
     turnl = 1;
-    }
 }
 
+// Right turn function, sets everything except the turn right flag to 0
 void turn_right(float error)
 {
-    if (abs(error) > 10)
-    {
-    spinr = 1;
-    spinl = 0;
-    back = 0;
-    }
-    else
-    {
+    front = 0;
     back  = 0;
     spinr = 0;
     spinl = 0;
     turnr = 1;
     turnl = 0;
-    }
 }
 // Function to stop movement
 void stop()
 {
-    front = 0;
-    back = 0;
-    turnl = 0;
-    turnr = 0;
-    spinl = 0;
-    spinr = 0;
+    front = 0; // Set front flag to 0
+    back = 0; // Set back flag to 0
+    turnl = 0; // Set left turn flag to 0
+    turnr = 0; // Set right turn flag to 0
+    spinl = 0; // Set spin left flag to 0
+    spinr = 0; // Set spin right flag to 0
 }
 
+// Rolling average function for the ultrasonic distance
 float ultrasonic_dist(int dist, int window_size)
 {
     int distance_readings[window_size];
