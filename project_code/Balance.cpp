@@ -6,6 +6,7 @@
 
 #include "Balance.h"
 
+
 // this function is called every 40ms and use Proportional Integral (PI)
 // forward/backward speed control to create an output signal that controls the speed of the vehicle
 // proportional gain kps acts on the speed error to try to regulate the speed to desired setpoint p0 of zero
@@ -41,7 +42,7 @@ float Balance::speedPiOut(float kps,float kis,int f,int b,float p0)
   positions += f;    // positive f = move forward
   positions -= b;    // positive b = move backward
 
-  positions = constrain(positions, -1500,1500);   // anti-integral saturation (prevents integral windup) 
+  positions = constrain(positions, -2000,2000);   // anti-integral saturation (prevents integral windup) 
                                                   // this value can be adjusted
 
   float output = kis * (p0 - positions) + kps * (p0 - speeds_filter); // PI forward/backward speed control
@@ -167,7 +168,7 @@ void Balance::pwma(float speedoutput,float rotationoutput,float angle,float roll
   // results of controllers are superimposed
   pwm1 = -angleoutput - speedoutput - rotationoutput; //Left motor PWM output value, rotation command opposite 
                                                       // to each motor
-  pwm2 = -angleoutput - speedoutput + rotationoutput - 9; //Right motor PWM output value
+  pwm2 = -angleoutput - speedoutput + rotationoutput - wheel_bias; //Right motor PWM output value
 
   // pwm amplitude limit
   const uint8_t pwm_max = 110;  // maximum value is 255 but avoid using too large a value to prevent damage to robot

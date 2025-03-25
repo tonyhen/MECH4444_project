@@ -56,7 +56,7 @@ void loop() {
         // wait for .1 second
       }
       const int normal = 112; // Nominal hall effect sensor values
-      const int threshold = 10; // Deadzone to determine when a wheel intersects magnetic strip
+      const int threshold = 8; // Deadzone to determine when a wheel intersects magnetic strip
       const int upper = normal + threshold; // Upper threshold for magnetic strip detection
       const int lower = normal - threshold; // Lower threshold for magnetic strip detection
       const int turn_time = 10; // Variale for how long a turn should be completed after detection
@@ -69,19 +69,24 @@ void loop() {
         digitalWrite(GPin,LOW);
 
         // Checks that both wheels are not detecting and drives forward
-        while ((upper > hall_L) && (upper > hall_R) && (hall_R > lower) && (hall_L > lower)) && (at_distance = 0)
+        while ((upper > hall_L) && (upper > hall_R) && (hall_R > lower) && (hall_L > lower) && (at_distance == 0))
         {
           front = 10; // Drive forward at speed 10
-          if (abs(ultrasonic_dist(distance,5) - desired_distance) < 1) // Check if for wall object
+          Serial.println(abs(distance - desired_distance));
+          if (abs(distance - desired_distance) < 5) // Check if for wall object
+          //if (abs(ultrasonic_dist(distance,5) - desired_distance) < 1) // Check if for wall object
           {
             stop(); // Stop the vehicle at that spot
-            bool at_distance = 1;
+            at_distance = 1;
+            flag_buzzer = 1;
+            digitalWrite(RPin,HIGH);
+            digitalWrite(BPin,HIGH);
+            digitalWrite(GPin,HIGH);
+            break;
           }
         }
 
-
         stop(); // If magnetic strip detected stop robot
-
 
         if (hall_L > upper || hall_L < lower) // If left side detects strip turn left
         {
@@ -104,7 +109,6 @@ void loop() {
           left_flag = 0;
         }
 
-
         if (hall_R > upper || hall_R < lower)  //If right side detects strip turn right
         {
           right_time = millis(); // stores time of detection
@@ -122,7 +126,8 @@ void loop() {
           }
           stop(); // Stop after turn time complete
         }
-        else {
+        else 
+        {
         right_flag = 0;
         }
 
@@ -143,7 +148,7 @@ void loop() {
             }
             stop(); // Stop
           }
-          if (right_time < left_time) // Checks which wheel hit it first to determine turn direction
+          else if (left_time > right_time)  // Checks which wheel hit it first to determine turn direction
           {
             stop();
             startTime = millis();
@@ -154,30 +159,52 @@ void loop() {
             stop(); // Stop
           }
         }
+        left_flag = 0;
+        right_flag = 0;
+        left_time = 0;
+        right_time = 0;
 
-
-
-
+        desired_heading = yaw_angle;
         //ultrasonic distance measurements
         while (at_distance == 1)
         {
         Serial.println(distance);
         //while the distance error is in between 1 cm
-        while(abs(ultrasonic_dist(distance,5) - desired_distance) < 1)
+
+        error = yaw_correction(desired_heading, yaw_angle);
+
+        if (error < 0) 
         {
-            stop();
+          turn_left();
         }
 
-        if (ultrasonic_dist(distance,5) - desired_distance > 1) // If too far move forward
+        else if (error > 0) 
         {
+          turn_right();
+        }
+
+        else
+        {
+          stop();
+        }
+
+        if (distance - desired_distance > 1) // If too far move forward 
+        //if (ultrasonic_dist(distance,5) - desired_distance > 1) // If too far move forward
+        {
+            digitalWrite(GPin,LOW);
             back = 0;
             front = 5;
         }
 
-        else // IF too close reverse
+        else if(distance - desired_distance < -1) // IF too close reverse
         {
+            digitalWrite(BPin,LOW);
             front = 0;
             back = 5;
+        }
+        else 
+        {
+          stop();
         }
 
         }

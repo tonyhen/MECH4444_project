@@ -28,7 +28,7 @@ float yaw_correction(float desired_heading, float yaw_angle) {
 }
 
 // Left turn function, sets everything except the turn left flag to 0
-void turn_left(float error)
+void turn_left()
 {
     front = 0;
     back = 0;
@@ -39,7 +39,7 @@ void turn_left(float error)
 }
 
 // Right turn function, sets everything except the turn right flag to 0
-void turn_right(float error)
+void turn_right()
 {
     front = 0;
     back  = 0;

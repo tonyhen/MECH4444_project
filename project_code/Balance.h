@@ -19,6 +19,7 @@ public:
             int Pin1,int Pin2,int Pin3,int Pin4,int PinPWMA,int PinPWMB);
 	int pulseright = 0;
 	int pulseleft = 0;
+  int wheel_bias = 9;
 	float angleoutput=0, pwm1 = 0, pwm2 = 0;
   
 private:
