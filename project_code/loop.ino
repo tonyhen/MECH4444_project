@@ -13,16 +13,13 @@ void loop() {
 
   currentMillis = millis();                   // time since Arduino turned on (ms)
   currentMillis = currentMillis - startTime;  // want time since setup() has finished
-  float error = 10;
+  float error = 30;
   float ROT; // Variable to hold the amount of rotation in degrees
   float desired_heading; // Variable to hold the desired heading in degrees
   bool left_flag = 0; //Flag for error correcting spin function left wheel
   bool right_flag = 0; // Flag for error correcting spin function right wheel
-  unsigned long right_time; // variable for when a wheel detects the strip
-  unsigned long left_time; // Variable for when the left wheel detects the strip
   const int desired_distance = 10; //desired distance in cm
-  bool at_distance = 0;
-
+  bool at_distance = 0; //Flag to enable the distance keeping routine
 
   // Existing Code to initialize balancing and gain balance provided by Dr. Bauer
 
@@ -71,10 +68,14 @@ void loop() {
         // Checks that both wheels are not detecting and drives forward
         while ((upper > hall_L) && (upper > hall_R) && (hall_R > lower) && (hall_L > lower) && (at_distance == 0))
         {
-          front = 10; // Drive forward at speed 10
-          Serial.println(abs(distance - desired_distance));
-          if (abs(distance - desired_distance) < 5) // Check if for wall object
-          //if (abs(ultrasonic_dist(distance,5) - desired_distance) < 1) // Check if for wall object
+          front = 18; // Drive forward at speed 10
+          //Serial.println(abs(distance - desired_distance));
+          // Serial.print("Left Hall: ");
+          // Serial.println(hall_L);
+          // Serial.print("Right Hall: ");
+          // Serial.println(hall_R);
+
+          if (abs(distance - desired_distance) < 8) // Check if for wall object
           {
             stop(); // Stop the vehicle at that spot
             at_distance = 1;
@@ -90,8 +91,10 @@ void loop() {
 
         if (hall_L > upper || hall_L < lower) // If left side detects strip turn left
         {
-          left_time = millis(); // Stores time of detection
+           // Stores time of detection
           left_flag = 1; // Stores that the strip is detected
+          // Serial.print("Left Time: ");
+          // Serial.println(left_time);
 
           // Turns LED Blue after detecting left strip
           digitalWrite(RPin,LOW);
@@ -104,15 +107,16 @@ void loop() {
           }
           stop(); //Stops after turn function complete
         }
-        else 
+        else
         {
           left_flag = 0;
         }
 
         if (hall_R > upper || hall_R < lower)  //If right side detects strip turn right
         {
-          right_time = millis(); // stores time of detection
           right_flag = 1; // Stores that the strip is detected
+          // Serial.print("Right Time: ");
+          // Serial.println(right_time);
 
           // Set LED Red if right strip detected
           digitalWrite(RPin,HIGH);
@@ -126,7 +130,7 @@ void loop() {
           }
           stop(); // Stop after turn time complete
         }
-        else 
+        else
         {
         right_flag = 0;
         }
@@ -134,51 +138,61 @@ void loop() {
 
         // following logic is for when both wheels detect the strip meaning the robot is orthogonal to the strip length
 
-        if((left_flag == 1) && (right_flag == 1))
-        {
-          flag_buzzer = true; // Ring buzzer to show that logic is active
 
-          if (right_time > left_time) // Checks which wheel hit it first to determine turn direction
+      if(left_flag == 1 && right_flag == 1)
+       {
+        flag_buzzer = true;
+
+        if(gz < 0)
+        {
+          stop(); // Stops motion
+          startTime = millis();
+          while(millis() < startTime + 1500) // Spin Right for 1.5 seconds
           {
-            stop(); // Stops motion
-            startTime = millis();
-            while(millis() < startTime + 1500) // Spin Right for 1.5 seconds
-            {
-              spinr = 1;
-            }
-            stop(); // Stop
+            spinl = 1;
+            Serial.println("Turning Right");
+            digitalWrite(RPin,LOW);
+            digitalWrite(GPin,HIGH);
+            digitalWrite(BPin,HIGH);
           }
-          else if (left_time > right_time)  // Checks which wheel hit it first to determine turn direction
-          {
-            stop();
-            startTime = millis();
-            while(millis() < startTime + 1500) // Spin Left for 1.5 seconds
-            {
-              spinl = 1;
-            }
-            stop(); // Stop
-          }
+          stop(); // Stop
         }
+
+
+        else if(gz > 0)
+        {
+          stop(); // Stops motion
+          startTime = millis();
+          while(millis() < startTime + 1500) // Spin Right for 1.5 seconds
+          {
+            spinr = 1;
+            Serial.println("Turning Right");
+            digitalWrite(RPin,HIGH);
+            digitalWrite(GPin,HIGH);
+            digitalWrite(BPin,LOW);
+          }
+          stop(); // Stop
+        }
+       }
+        // Reset flags and times 
         left_flag = 0;
         right_flag = 0;
-        left_time = 0;
-        right_time = 0;
 
-        desired_heading = yaw_angle;
+        desired_heading = yaw_angle; // Desired heading to keep when distance keeping at wall
         //ultrasonic distance measurements
-        while (at_distance == 1)
+        while (at_distance == 1) // Flag to start distance keeping
         {
-        Serial.println(distance);
+
         //while the distance error is in between 1 cm
 
         error = yaw_correction(desired_heading, yaw_angle);
 
-        if (error < 0) 
+        if (error < 0)
         {
           turn_left();
         }
 
-        else if (error > 0) 
+        else if (error > 0)
         {
           turn_right();
         }
@@ -188,7 +202,7 @@ void loop() {
           stop();
         }
 
-        if (distance - desired_distance > 1) // If too far move forward 
+        if (distance - desired_distance > 1) // If too far move forward
         //if (ultrasonic_dist(distance,5) - desired_distance > 1) // If too far move forward
         {
             digitalWrite(GPin,LOW);
@@ -202,7 +216,7 @@ void loop() {
             front = 0;
             back = 5;
         }
-        else 
+        else
         {
           stop();
         }
