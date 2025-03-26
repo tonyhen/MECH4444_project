@@ -6,20 +6,21 @@ extern volatile uint8_t front, back;
 extern volatile bool turnl, turnr, spinl, spinr, spinl, spinr;
 
 // Function prototypes
-float yaw_correction(float reference, float yaw_angle);
-void turn_left();
-void turn_right();
-float ultrasonic_dist(int dist,int window_size);
-void stop();  // Declare stop() before defining it
+float yaw_correction(float reference, float yaw_angle); // Corrects for error outside of range
+void turn_left(); // Declare a turn_left function
+void turn_right(); //Declare a turn_right function
+void stop();  // Declare stop
+
 
 // Function to adjust yaw error to account for going through 0 or 360 degrees
 float yaw_correction(float desired_heading, float yaw_angle) {
     int error = desired_heading - yaw_angle;  // Adjust error based on reference
-    if (error > 180) 
+
+    if (error > 180)  // If error is more than 180 subtract 360 to account for going out of range
     {
         error -= 360;
     } 
-    else if (error < -180) 
+    else if (error < -180) // If error is more than -180 degrees add 360 degrees
     {  
         error += 360;
     }
@@ -60,18 +61,4 @@ void stop()
 }
 
 // Rolling average function for the ultrasonic distance
-float ultrasonic_dist(int dist, int window_size)
-{
-    int distance_readings[window_size];
-    float sum_dist = 0;
-    for(int i=0;i<window_size;i++)
-    {
-        distance_readings[i] = dist;
-        sum_dist += distance_readings[i];
-    }
-    float avg_dist = sum_dist/window_size;
-    return avg_dist;
-}
-
-
 #endif

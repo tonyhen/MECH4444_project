@@ -43,7 +43,7 @@ void loop() {
 
   if (flag_wait == false)  // ok to start doing something
 
-  // End of Dr.Bauer's initialization and balance code
+
 
   {
     while (true) {
@@ -52,12 +52,18 @@ void loop() {
       {
         // wait for .1 second
       }
+
+  //####################################################################################################################
+  // End of Dr.Bauer's initialization and balance code
+
+
+
       const int normal = 112; // Nominal hall effect sensor values
       const int threshold = 8; // Deadzone to determine when a wheel intersects magnetic strip
       const int upper = normal + threshold; // Upper threshold for magnetic strip detection
       const int lower = normal - threshold; // Lower threshold for magnetic strip detection
       const int turn_time = 10; // Variale for how long a turn should be completed after detection
-      startTime = millis();
+
       while (true)
       {
         // Turn LEDs WHITE if magnetic strip not detected
@@ -69,17 +75,21 @@ void loop() {
         while ((upper > hall_L) && (upper > hall_R) && (hall_R > lower) && (hall_L > lower) && (at_distance == 0))
         {
           front = 18; // Drive forward at speed 10
+
+          // Debugging Code
           //Serial.println(abs(distance - desired_distance));
           // Serial.print("Left Hall: ");
           // Serial.println(hall_L);
           // Serial.print("Right Hall: ");
           // Serial.println(hall_R);
 
-          if (abs(distance - desired_distance) < 8) // Check if for wall object
+          if (abs(distance - desired_distance) < 8) // Check for wall object
           {
             stop(); // Stop the vehicle at that spot
-            at_distance = 1;
-            flag_buzzer = 1;
+            at_distance = 1; // Flagged to start position keeping
+            flag_buzzer = 1; // Notify User
+
+            // Change LED colour
             digitalWrite(RPin,HIGH);
             digitalWrite(BPin,HIGH);
             digitalWrite(GPin,HIGH);
@@ -91,7 +101,6 @@ void loop() {
 
         if (hall_L > upper || hall_L < lower) // If left side detects strip turn left
         {
-           // Stores time of detection
           left_flag = 1; // Stores that the strip is detected
           // Serial.print("Left Time: ");
           // Serial.println(left_time);
@@ -109,7 +118,7 @@ void loop() {
         }
         else
         {
-          left_flag = 0;
+          left_flag = 0; // Wheel is not detecting the strip
         }
 
         if (hall_R > upper || hall_R < lower)  //If right side detects strip turn right
@@ -132,14 +141,14 @@ void loop() {
         }
         else
         {
-        right_flag = 0;
+        right_flag = 0; // Wheel is not detecting the strip
         }
 
 
-        // following logic is for when both wheels detect the strip meaning the robot is orthogonal to the strip length
 
 
-      if(left_flag == 1 && right_flag == 1)
+      // following logic is for when both wheels detect the strip meaning the robot is orthogonal to the strip length
+      if(left_flag == 1 && right_flag == 1) // Both wheels flagged and in
        {
         flag_buzzer = true;
 
