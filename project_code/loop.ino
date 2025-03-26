@@ -148,18 +148,19 @@ void loop() {
 
 
       // following logic is for when both wheels detect the strip meaning the robot is orthogonal to the strip length
+      // uses the sign of the gyroscope to determine the direction to spin
       if(left_flag == 1 && right_flag == 1) // Both wheels flagged and in
        {
-        flag_buzzer = true;
+        flag_buzzer = true; // announce that spin is active
 
-        if(gz < 0)
+        if(gz < 0) // if gyro is negative spin left
         {
           stop(); // Stops motion
           startTime = millis();
           while(millis() < startTime + 1500) // Spin Right for 1.5 seconds
           {
             spinl = 1;
-            Serial.println("Turning Right");
+            //change leds for left turn
             digitalWrite(RPin,LOW);
             digitalWrite(GPin,HIGH);
             digitalWrite(BPin,HIGH);
@@ -168,14 +169,16 @@ void loop() {
         }
 
 
-        else if(gz > 0)
+        else if(gz > 0) // if gyro is positive spin right
         {
           stop(); // Stops motion
           startTime = millis();
           while(millis() < startTime + 1500) // Spin Right for 1.5 seconds
           {
             spinr = 1;
-            Serial.println("Turning Right");
+
+            // change leds for right turn
+            //Serial.println("Turning Right"); // debugging printing
             digitalWrite(RPin,HIGH);
             digitalWrite(GPin,HIGH);
             digitalWrite(BPin,LOW);
@@ -191,43 +194,39 @@ void loop() {
         //ultrasonic distance measurements
         while (at_distance == 1) // Flag to start distance keeping
         {
+        error = yaw_correction(desired_heading, yaw_angle); //correct heading for end of scope
 
-        //while the distance error is in between 1 cm
-
-        error = yaw_correction(desired_heading, yaw_angle);
-
-        if (error < 0)
+        if (error < 0) // if error is negative turn left
         {
           turn_left();
         }
 
-        else if (error > 0)
+        else if (error > 0) // if error is positive turn right
         {
           turn_right();
         }
 
-        else
+        else // if no error stop
         {
           stop();
         }
 
         if (distance - desired_distance > 1) // If too far move forward
-        //if (ultrasonic_dist(distance,5) - desired_distance > 1) // If too far move forward
         {
-            digitalWrite(GPin,LOW);
+            digitalWrite(GPin,LOW); // change colour for too far away
             back = 0;
-            front = 5;
+            front = 5; // move forward
         }
 
         else if(distance - desired_distance < -1) // IF too close reverse
         {
-            digitalWrite(BPin,LOW);
+            digitalWrite(BPin,LOW); // change led colour for too close
             front = 0;
-            back = 5;
+            back = 5; // backup
         }
         else
         {
-          stop();
+          stop(); // if in threshold stop
         }
 
         }
