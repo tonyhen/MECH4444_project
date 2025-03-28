@@ -169,6 +169,9 @@ uint8_t detTime=0;     // used to control how often the ultrasonic sensor is emp
 /****************Time***************************************/
 unsigned long currentMillis; // keep track of how long program has been running
 unsigned long startTime;     // keep track of how long program has been running
+
+
+// ADDED BY GROUP 6/7
 int wheel_bias = 9; // Value to preferentially 
 
 

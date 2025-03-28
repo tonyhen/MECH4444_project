@@ -1,4 +1,23 @@
 /* main high-level control loop */
+
+/* Code by Team 6/7 of Mech4444.
+By Mackenzie Hallet, Arshvir Singh, Ashley Leonard, Gordon Henderson
+
+This code will be the primary drive loop for the self balancing robot to follow the magnetic strip track
+and will also stop at 10cm from a wall.
+
+Referenced functions can also be found in the functions.h file
+
+Changes to the code outside of this file and function file:
+
+- Added a wheel_bias to the balance.cpp pwm2 calculation
+- Added wheel_bias variable to project_code.ino
+- PID turn integral constrain was increased to +- 2000
+*/
+
+
+
+
 void loop() {
   // don't use the delay() function as it blocks code and prevents
   // "back" "front" etc. from updating correctly in the ISR
@@ -45,6 +64,8 @@ void loop() {
 
   // End of Dr.Bauer's initialization and balance code
 
+
+
   {
     while (true) {
       long int startMillis = millis();  // time since Arduino turned on (ms)
@@ -68,22 +89,22 @@ void loop() {
         // Checks that both wheels are not detecting and drives forward
         while ((upper > hall_L) && (upper > hall_R) && (hall_R > lower) && (hall_L > lower) && (at_distance == 0))
         {
-          front = 18; // Drive forward at speed 10
-          //Serial.println(abs(distance - desired_distance));
+          front = 20; // Drive forward at speed 10
+          Serial.println(abs(distance));
           // Serial.print("Left Hall: ");
           // Serial.println(hall_L);
           // Serial.print("Right Hall: ");
           // Serial.println(hall_R);
 
-          if (abs(distance - desired_distance) < 8) // Check if for wall object
+          if (abs(distance - desired_distance) < 5) // Check if for wall object
           {
             stop(); // Stop the vehicle at that spot
-            at_distance = 1;
-            flag_buzzer = 1;
+            at_distance = 1; // Change flag to distance keeping
+            flag_buzzer = 1; // Ring Buzzer 
             digitalWrite(RPin,HIGH);
             digitalWrite(BPin,HIGH);
             digitalWrite(GPin,HIGH);
-            break;
+            break; // Break out of while loop
           }
         }
 
@@ -109,7 +130,7 @@ void loop() {
         }
         else
         {
-          left_flag = 0;
+          left_flag = 0; // changes flag to not detecting strip
         }
 
         if (hall_R > upper || hall_R < lower)  //If right side detects strip turn right
@@ -132,25 +153,24 @@ void loop() {
         }
         else
         {
-        right_flag = 0;
+        right_flag = 0; // changes flag to not detecting strip
         }
 
-
-        // following logic is for when both wheels detect the strip meaning the robot is orthogonal to the strip length
-
-
+      //Serial.println(distance);
+      
+      // following logic is for when both wheels detect the strip meaning the robot is orthogonal to the strip length
       if(left_flag == 1 && right_flag == 1)
        {
-        flag_buzzer = true;
+        flag_buzzer = true; // Ring buzzer
 
-        if(gz < 0)
+        if(gz < 0) // Checks if the gyroscope is negative 
         {
           stop(); // Stops motion
           startTime = millis();
           while(millis() < startTime + 1500) // Spin Right for 1.5 seconds
           {
             spinl = 1;
-            Serial.println("Turning Right");
+            //Serial.println("Turning Right");
             digitalWrite(RPin,LOW);
             digitalWrite(GPin,HIGH);
             digitalWrite(BPin,HIGH);
@@ -159,14 +179,14 @@ void loop() {
         }
 
 
-        else if(gz > 0)
+        else if(gz > 0) // Check if gyroscope is positive 
         {
           stop(); // Stops motion
           startTime = millis();
           while(millis() < startTime + 1500) // Spin Right for 1.5 seconds
           {
             spinr = 1;
-            Serial.println("Turning Right");
+            //Serial.println("Turning Right");
             digitalWrite(RPin,HIGH);
             digitalWrite(GPin,HIGH);
             digitalWrite(BPin,LOW);
@@ -178,11 +198,24 @@ void loop() {
         left_flag = 0;
         right_flag = 0;
 
+        // Check if the robot is at the object 
+        if (abs(distance - desired_distance) < 5) // Check if for wall object
+        {
+          stop(); // Stop the vehicle at that spot
+          at_distance = 1; // Changes to distance keeping behavior
+          //flag_buzzer = 1;
+
+          // Turn off 
+          digitalWrite(RPin,HIGH);
+          digitalWrite(BPin,HIGH);
+          digitalWrite(GPin,HIGH);
+        }
+
         desired_heading = yaw_angle; // Desired heading to keep when distance keeping at wall
         //ultrasonic distance measurements
         while (at_distance == 1) // Flag to start distance keeping
         {
-
+        
         //while the distance error is in between 1 cm
 
         error = yaw_correction(desired_heading, yaw_angle);

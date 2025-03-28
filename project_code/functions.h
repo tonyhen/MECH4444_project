@@ -1,15 +1,28 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+/* Code by Team 6/7 of Mech4444.
+By Mackenzie Hallet, Arshvir Singh, Ashley Leonard, Gordon Henderson
+
+This Code file contains all of the fucntions for the project.
+They define the yaw_correction file to deal with error for yaw direction finding
+turn_right() steers the robot to the right
+turn_left() steers the robot to the left
+stop() stops the robot
+*/
+
+
+
+
+
+
 // Declare external global variables (since they are defined in another file)
 extern volatile uint8_t front, back;
 extern volatile bool turnl, turnr, spinl, spinr, spinl, spinr;
 
 // Function prototypes
-float yaw_correction(float reference, float yaw_angle);
 void turn_left();
 void turn_right();
-float ultrasonic_dist(int dist,int window_size);
 void stop();  // Declare stop() before defining it
 
 // Function to adjust yaw error to account for going through 0 or 360 degrees
@@ -58,20 +71,5 @@ void stop()
     spinl = 0; // Set spin left flag to 0
     spinr = 0; // Set spin right flag to 0
 }
-
-// Rolling average function for the ultrasonic distance
-float ultrasonic_dist(int dist, int window_size)
-{
-    int distance_readings[window_size];
-    float sum_dist = 0;
-    for(int i=0;i<window_size;i++)
-    {
-        distance_readings[i] = dist;
-        sum_dist += distance_readings[i];
-    }
-    float avg_dist = sum_dist/window_size;
-    return avg_dist;
-}
-
 
 #endif
